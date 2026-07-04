@@ -465,7 +465,6 @@
                 </div>
             </section>
 
-
             <!-- ADMIN SECTIONS -->
             <section id="admin-dashboard" class="content-section">
                 <div class="card-grid">
@@ -605,17 +604,16 @@
             currentUser: null,
             editingUserId: null,
             users: [
-                { id: 'E-0142', name: 'Sayan Sekh', email: 'employee@nexhr.com', password: 'password123', role: 'employee', roleTitle: 'Frontend Engineer', salary: '$85,000 / yr' },
-                { id: 'A-0001', name: 'Sarah Jenkins', email: 'admin@nexhr.com', password: 'password123', role: 'admin', roleTitle: 'HR Director', salary: '$140,000 / yr' },
-                { id: 'E-0189', name: 'Michael Chen', email: 'michael@nexhr.com', password: 'password123', role: 'employee', roleTitle: 'UX Designer', salary: '$95,000 / yr' },
-                { id: 'E-0205', name: 'Emma Watson', email: 'emma@nexhr.com', password: 'password123', role: 'employee', roleTitle: 'Marketing Lead', salary: '$88,000 / yr' }
+                { id: 'E-0142', name: 'Sayan', email: 'employee@nexhr.com', password: 'password123', role: 'employee', roleTitle: 'Frontend Engineer', salary: '$85,000 / yr' },
+                { id: 'A-0001', name: 'Diganta', email: 'admin@nexhr.com', password: 'password123', role: 'admin', roleTitle: 'HR Director', salary: '$140,000 / yr' },
+                { id: 'E-0189', name: 'Suman', email: 'suman@nexhr.com', password: 'password123', role: 'employee', roleTitle: 'UX Designer', salary: '$95,000 / yr' }
             ],
             attendance: [
                 // Format: { userId, date: 'YYYY-MM-DD', status: 'present'|'absent' }
             ],
             leaveRequests: [
-                { id: 1, userId: 'E-0189', userName: 'Michael Chen', type: 'Sick Leave', startDate: '2023-11-10', endDate: '2023-11-12', remarks: 'Down with a severe flu.', status: 'pending' },
-                { id: 2, userId: 'E-0205', userName: 'Emma Watson', type: 'Paid Time Off (PTO)', startDate: '2023-12-20', endDate: '2023-12-25', remarks: 'Family vacation for the holidays.', status: 'approved' }
+                { id: 1, userId: 'E-0189', userName: 'Suman', type: 'Sick Leave', startDate: '2023-11-10', endDate: '2023-11-12', remarks: 'Down with a severe flu.', status: 'pending' },
+                { id: 2, userId: 'E-0142', userName: 'Sayan', type: 'Paid Time Off (PTO)', startDate: '2023-12-20', endDate: '2023-12-25', remarks: 'Family vacation for the holidays.', status: 'approved' }
             ]
         };
 
@@ -623,7 +621,7 @@
 
         // Seed some mock attendance for today for realism
         state.attendance.push({ userId: 'E-0189', date: getTodayStr(), status: 'present' });
-        state.attendance.push({ userId: 'E-0205', date: getTodayStr(), status: 'present' });
+        state.attendance.push({ userId: 'E-0142', date: getTodayStr(), status: 'present' });
 
         // Helper to generate initials Avatar URL
         const getAvatarUrl = (name) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=EEF2FF&color=4F46E5&rounded=true&bold=true`;
