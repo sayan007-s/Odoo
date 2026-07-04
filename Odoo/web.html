@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexHR | Workplace Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            /* Warm, clean SaaS color palette */
+            --primary: #4F46E5; /* Indigo */
+            --primary-hover: #4338CA;
+            --primary-light: #EEF2FF;
+            --bg-main: #F9FAFB;
+            --surface: #FFFFFF;
+            --text-dark: #111827;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            
+            /* Status Colors */
+            --success: #10B981;
+            --success-bg: #D1FAE5;
+            --danger: #EF4444;
+            --danger-bg: #FEE2E2;
+            --warning: #F59E0B;
+            --warning-bg: #FEF3C7;
+            --info: #3B82F6;
+            --info-bg: #DBEAFE;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .hidden { display: none !important; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .flex-center { display: flex; justify-content: center; align-items: center; }
+        
+        .surface-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* Typography */
+        h1 { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
+        h2 { font-size: 1.25rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem; }
+        h3 { font-size: 1rem; font-weight: 600; color: var(--text-dark); }
+        p { color: var(--text-muted); line-height: 1.5; }
+        .text-primary { color: var(--primary); }
+
+        /* Auth Screen */
+        #auth-view { height: 100vh; display: flex; align-items: center; justify-content: center; background-color: var(--bg-main); }
+        .auth-box { width: 100%; max-width: 420px; padding: 3rem 2.5rem; text-align: center; }
+        .auth-logo { width: 48px; height: 48px; background: var(--primary-light); color: var(--primary); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem; }
+        .auth-box h2 { margin-bottom: 0.5rem; font-size: 1.5rem; }
+        .auth-box > p { margin-bottom: 2rem; font-size: 0.95rem; }
+        .auth-switch { color: var(--primary); cursor: pointer; font-size: 0.9rem; margin-top: 1.5rem; display: inline-block; font-weight: 500; }
+        .auth-switch:hover { text-decoration: underline; }
+
+        /* Main App Layout */
+        .app-container { display: flex; height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; padding: 1.5rem; display: flex; flex-direction: column; background: var(--surface); border-right: 1px solid var(--border); z-index: 10;}
+        .logo-container { display: flex; align-items: center; gap: 12px; margin-bottom: 2.5rem; font-size: 1.25rem; font-weight: 700; color: var(--text-dark);}
+        .logo-icon { color: var(--primary); font-size: 1.4rem; }
+        
+        .nav-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; margin-bottom: 0.75rem; padding-left: 0.75rem; }
+        
+        .nav-btn { width: 100%; background: transparent; border: none; color: var(--text-muted); padding: 0.75rem 1rem; border-radius: 8px; text-align: left; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 12px; }
+        .nav-btn i { font-size: 1.1rem; width: 20px; text-align: center; }
+        .nav-btn:hover { background: var(--bg-main); color: var(--text-dark); }
+        .nav-btn.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+        
+        .logout-container { margin-top: auto; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+        .logout:hover { color: var(--danger); background: var(--danger-bg); }
+
+        /* Main Content Area */
+        .main-content { flex: 1; padding: 2rem 3rem; overflow-y: auto; background-color: var(--bg-main); }
+        .top-bar { margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: flex-end;}
+        .profile-trigger { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 0.5rem; border-radius: 8px; transition: background 0.2s; }
+        .profile-trigger:hover { background: #F3F4F6; }
+        .profile-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 600; overflow: hidden;}
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Content Sections */
+        .content-section { animation: fadeIn 0.3s ease-out; display: none; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Cards */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
+        .stat-card { padding: 1.5rem; border-radius: 12px; display: flex; flex-direction: column; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .card-icon-wrapper { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .bg-indigo { background: var(--primary-light); color: var(--primary); }
+        .bg-emerald { background: var(--success-bg); color: var(--success); }
+        .bg-amber { background: var(--warning-bg); color: var(--warning); }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.25rem; }
+
+        /* Forms & Inputs */
+        .form-group { margin-bottom: 1.25rem; text-align: left; }
+        label { display: block; color: var(--text-dark); font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; }
+        .form-input { width: 100%; background: #FFFFFF; border: 1px solid var(--border); color: var(--text-dark); padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.95rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
+        .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .form-input:disabled { background: var(--bg-main); color: var(--text-muted); }
+        
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
+        .btn-primary { background: var(--primary); color: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-outline { background: transparent; border-color: var(--border); color: var(--text-dark); }
+        .btn-outline:hover { background: var(--bg-main); }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: var(--danger-bg); color: var(--danger); }
+        .btn-danger:hover { background: #FECACA; }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+        .w-full { width: 100%; }
+
+        /* Data Tables */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
+        th { color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); background: #F9FAFB; }
+        th:first-child { border-top-left-radius: 12px; }
+        th:last-child { border-top-right-radius: 12px; }
+        td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-size: 0.95rem; color: var(--text-dark); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F9FAFB; }
+        
+        .user-cell { display: flex; align-items: center; gap: 12px; }
+        .user-cell-info { display: flex; flex-direction: column; }
+        .user-cell-name { font-weight: 500; color: var(--text-dark); }
+        .user-cell-email { font-size: 0.85rem; color: var(--text-muted); }
+
+        .badge { padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; display: inline-block;}
+        .badge-pending { background: var(--warning-bg); color: #B45309; }
+        .badge-approved { background: var(--success-bg); color: #047857; }
+        .badge-rejected { background: var(--danger-bg); color: #B91C1C; }
+        .badge-admin { background: var(--info-bg); color: #1D4ED8; }
+        .badge-employee { background: #F3F4F6; color: #4B5563; }
+
+        /* Calendar Grid */
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;}
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
+        .day-name { color: var(--text-muted); font-weight: 600; font-size: 0.85rem; padding-bottom: 8px; }
+        .day-cell { padding: 10px 5px; background: #FFFFFF; border-radius: 8px; border: 1px solid var(--border); min-height: 85px; display: flex; flex-direction: column; align-items: center; transition: background 0.2s; }
+        .day-cell:hover { background: #F9FAFB; }
+        .day-cell.today { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+        .day-cell .date-num { font-weight: 500; font-size: 0.95rem; margin-bottom: 12px; color: var(--text-dark); }
+        .status-pill { width: 80%; padding: 4px 0; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-top: auto; text-transform: uppercase; letter-spacing: 0.05em;}
+        .status-pill.present { background: var(--success-bg); color: #047857; }
+        .status-pill.absent { background: var(--danger-bg); color: #B91C1C; }
+        .status-pill.leave { background: var(--warning-bg); color: #B45309; }
+        
+        .legend-dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+        /* Toast Notifications */
+        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; }
+        .toast { background: #FFFFFF; border: 1px solid var(--border); padding: 1rem 1.25rem; border-radius: 8px; color: var(--text-dark); display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform: translateY(100%); opacity: 0; }
+        .toast i { font-size: 1.25rem; }
+        
+        /* Modal Overlay */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(17, 24, 39, 0.4); backdrop-filter: blur(2px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { max-width: 450px; width: 90%; background: #fff; padding: 2rem; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transform: scale(0.95); transition: transform 0.2s; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+
+        @keyframes slideUp { to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; } }
+
+        /* Utilities */
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .text-sm { font-size: 0.875rem; }
+        .max-w-3xl { max-width: 48rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Notification Container -->
+    <div id="toast-container"></div>
+
+    <!-- Modal Container for Editing Salary -->
+    <div id="edit-salary-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex-between mb-4">
+                <h3 style="font-size: 1.25rem;">Update Salary</h3>
+                <button class="btn btn-outline btn-sm" style="border:none; padding: 4px;" onclick="closeModal('edit-salary-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-muted mb-6 text-sm">Modifying payroll records for <strong id="modal-emp-name" class="text-dark"></strong>. Changes will reflect in their next billing cycle.</p>
+            
+            <div class="form-group">
+                <label>Annual Salary Structure</label>
+                <div style="position: relative;">
+                    <span style="position: absolute; left: 12px; top: 10px; color: var(--text-muted);"><i class="fa-solid fa-dollar-sign"></i></span>
+                    <input type="text" id="modal-salary-input" class="form-input" style="padding-left: 30px;" placeholder="e.g. 90,000 / yr">
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 2rem; justify-content: flex-end;">
+                <button class="btn btn-outline" onclick="closeModal('edit-salary-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSalary()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. AUTHENTICATION VIEW -->
+    <div id="auth-view">
+        <div id="login-form" class="surface-panel auth-box">
+            <div class="auth-logo"><i class="fa-solid fa-layer-group"></i></div>
+            <h2>Welcome to NexHR</h2>
+            <p class="text-muted">Sign in to your workspace</p>
+            
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Work Email</label>
+                    <input type="email" id="login-email" class="form-input" required value="employee@nexhr.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" class="form-input" required value="password123">
+                </div>
+                <button type="submit" class="btn btn-primary w-full mt-4">Sign In</button>
+            </form>
+            <span class="auth-switch" onclick="toggleAuthForms()">Create a new workspace account</span>
+            
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-muted); text-align: left;">
+                <strong>Demo Credentials:</strong><br>
+                Admin: admin@nexhr.com (pwd: password123)<br>
+                Staff: employee@nexhr.com (pwd: password123)
+            </div>
+        </div>
+
+        <div id="register-form" class="surface-panel auth-box hidden">
+            <div class="auth-logo"><i class="fa-solid fa-user-plus"></i></div>
+            <h2>Create Account</h2>
+            <p class="text-muted">Join your company workspace</p>
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-name" class="form-input" required placeholder="e.g. Jane Doe">
+                </div>
+                <div class="form-group">
+                    <label>Work Email</label>
+                    <input type="email" id="reg-email" class="form-input" required placeholder="jane@nexhr.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" class="form-input" required placeholder="Create a secure password">
+                </div>
+                <div class="form-group">
+                    <label>Account Role</label>
+                    <select id="reg-role" class="form-input">
+                        <option value="employee">Team Member (Employee)</option>
+                        <option value="admin">Workspace Admin (HR)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary w-full mt-4">Create Account</button>
+            </form>
+            <span class="auth-switch" onclick="toggleAuthForms()">Already have an account? Sign in</span>
+        </div>
+    </div>
+
+    <!-- 2. MAIN APPLICATION VIEW -->
+    <div id="app-view" class="app-container hidden">
+        
+        <aside class="sidebar">
+            <div class="logo-container">
+                <i class="fa-solid fa-layer-group logo-icon"></i> NexHR
+            </div>
+            
+            <div class="nav-label">Main Menu</div>
+            <nav id="sidebar-nav">
+                <!-- Navigation injected via JS based on Role -->
+            </nav>
+            
+            <div class="logout-container">
+                <button class="nav-btn logout" onclick="handleLogout()">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div>
+                    <h1 id="dynamic-greeting" class="mb-1">Good morning, <span id="user-display-name">User</span> 👋</h1>
+                    <p id="user-display-role" class="text-sm text-muted">Dashboard Overview</p>
+                </div>
+                <div class="profile-trigger" onclick="switchTab(state.currentUser.role === 'employee' ? 'emp-profile' : 'admin-dashboard')">
+                    <div style="text-align: right; margin-right: 4px;">
+                        <div style="font-weight: 500; font-size: 0.9rem;" id="header-name">User</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);" id="header-id">ID</div>
+                    </div>
+                    <div class="profile-avatar" id="header-avatar"></div>
+                </div>
+            </header>
+
+            <!-- EMPLOYEE SECTIONS -->
+            <section id="emp-dashboard" class="content-section active">
+                <div class="card-grid">
+                    <div class="surface-panel stat-card">
+                        <div class="card-header">
+                            <h3 class="text-muted">Attendance Rate</h3>
+                            <div class="card-icon-wrapper bg-indigo"><i class="fa-solid fa-calendar-check"></i></div>
+                        </div>
+                        <p class="stat-value">100%</p>
+                        <p class="text-sm text-success"><i class="fa-solid fa-arrow-trend-up"></i> Perfect this month</p>
+                    </div>
+                    <div class="surface-panel stat-card">
+                        <div class="card-header">
+                            <h3 class="text-muted">Available Leave</h3>
+                            <div class="card-icon-wrapper bg-emerald"><i class="fa-solid fa-mug-hot"></i></div>
+                        </div>
+                        <p class="stat-value">12 Days</p>
+                        <p class="text-sm text-muted">Paid time off remaining</p>
+                    </div>
+                    <div class="surface-panel stat-card" style="border: 1px solid var(--primary-light);">
+                        <div class="card-header">
+                            <h3 class="text-muted">Daily Check-In</h3>
+                            <div class="card-icon-wrapper bg-amber"><i class="fa-regular fa-clock"></i></div>
+                        </div>
+                        <div style="margin-top: auto;">
+                            <p id="checkInStatus" class="mb-2 text-sm font-medium">Status: <span class="badge badge-employee">Not Checked In</span></p>
+                            <button class="btn btn-primary w-full" id="checkInBtn" onclick="toggleCheckIn()">
+                                Check In Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="emp-profile" class="content-section">
+                <div class="surface-panel p-6 max-w-3xl">
+                    <div class="flex-between mb-6">
+                        <h2>My Profile</h2>
+                        <span class="badge badge-employee">Active Employee</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Employee ID</label>
+                        <input type="text" id="prof-id" disabled class="form-input">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="prof-name" disabled class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="text" id="prof-email" disabled class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Job Title / Role</label>
+                        <input type="text" id="prof-role" disabled class="form-input">
+                    </div>
+                    
+                    <hr style="border: 0; border-top: 1px solid var(--border); margin: 2rem 0;">
+                    
+                    <h3>Compensation</h3>
+                    <p class="text-sm text-muted mb-4">View your current salary structure and access payslips.</p>
+                    <div class="form-group">
+                        <label>Annual Base Salary</label>
+                        <div class="flex-between gap-4">
+                            <input type="text" id="prof-salary" disabled class="form-input" style="flex: 1; font-weight: 600; color: var(--primary);">
+                            <button class="btn btn-outline" onclick="showToast('Downloading latest payslip PDF...', 'success')"><i class="fa-solid fa-file-pdf"></i> Download Payslip</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="emp-attendance" class="content-section">
+                <div class="surface-panel p-6">
+                    <div class="calendar-header">
+                        <h2>Attendance Log - <span class="text-primary" id="calendar-month"></span></h2>
+                        <div style="display:flex; gap: 15px; font-size: 0.85rem; align-items: center;">
+                            <span class="flex-center" style="gap:6px"><span class="legend-dot" style="background: var(--success);"></span> Present</span>
+                            <span class="flex-center" style="gap:6px"><span class="legend-dot" style="background: var(--danger);"></span> Absent</span>
+                            <span class="flex-center" style="gap:6px"><span class="legend-dot" style="background: var(--warning);"></span> On Leave</span>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-grid">
+                        <div class="day-name">Sun</div><div class="day-name">Mon</div><div class="day-name">Tue</div>
+                        <div class="day-name">Wed</div><div class="day-name">Thu</div><div class="day-name">Fri</div>
+                        <div class="day-name">Sat</div>
+                    </div>
+                    <div class="calendar-grid" id="calendar-days" style="margin-top: 8px;">
+                        <!-- Days injected via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="emp-leave" class="content-section">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
+                    <!-- Request Form -->
+                    <div class="surface-panel p-6">
+                        <h2 class="mb-4">Request Time Off</h2>
+                        <form onsubmit="submitLeaveRequest(event)">
+                            <div class="form-group">
+                                <label>Leave Type</label>
+                                <select id="leave-type" class="form-input" required>
+                                    <option value="" disabled selected>Select a leave type</option>
+                                    <option value="Paid Time Off (PTO)">Paid Time Off (PTO)</option>
+                                    <option value="Sick Leave">Sick Leave</option>
+                                    <option value="Unpaid Leave">Unpaid Leave</option>
+                                    <option value="Bereavement">Bereavement</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div class="form-group" style="flex:1">
+                                    <label>First Day Off</label>
+                                    <input type="date" id="leave-start" class="form-input" required>
+                                </div>
+                                <div class="form-group" style="flex:1">
+                                    <label>Last Day Off</label>
+                                    <input type="date" id="leave-end" class="form-input" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Message to HR / Manager</label>
+                                <textarea id="leave-remarks" class="form-input" rows="3" placeholder="Briefly explain your request..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full">Submit Request</button>
+                        </form>
+                    </div>
+
+                    <!-- History Table -->
+                    <div class="surface-panel p-0" style="overflow: hidden;">
+                        <div class="p-6" style="padding-bottom: 1rem;">
+                            <h2>Request History</h2>
+                            <p class="text-sm text-muted">Track the status of your past and upcoming time off.</p>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Details</th>
+                                        <th>Dates</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="my-leave-table-body">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ADMIN SECTIONS -->
+            <section id="admin-dashboard" class="content-section">
+                <div class="card-grid">
+                    <div class="surface-panel stat-card">
+                        <div class="card-header">
+                            <h3 class="text-muted">Total Workforce</h3>
+                            <div class="card-icon-wrapper bg-indigo"><i class="fa-solid fa-users"></i></div>
+                        </div>
+                        <p class="stat-value" id="stat-total-emp">0</p>
+                        <p class="text-sm text-muted">Active employees</p>
+                    </div>
+                    <div class="surface-panel stat-card">
+                        <div class="card-header">
+                            <h3 class="text-muted">Present Today</h3>
+                            <div class="card-icon-wrapper bg-emerald"><i class="fa-solid fa-building-user"></i></div>
+                        </div>
+                        <p class="stat-value text-primary" id="stat-present-today">0</p>
+                        <p class="text-sm text-muted">Checked in successfully</p>
+                    </div>
+                    <div class="surface-panel stat-card">
+                        <div class="card-header">
+                            <h3 class="text-muted">Pending Approvals</h3>
+                            <div class="card-icon-wrapper bg-amber"><i class="fa-solid fa-inbox"></i></div>
+                        </div>
+                        <p class="stat-value" id="stat-pending-leaves">0</p>
+                        <p class="text-sm text-muted">Leave requests awaiting review</p>
+                    </div>
+                </div>
+
+                <div class="surface-panel overflow-hidden">
+                    <div class="p-6 pb-4 flex-between border-b" style="border-bottom: 1px solid var(--border);">
+                        <h2>Employee Directory</h2>
+                        <button class="btn btn-outline btn-sm"><i class="fa-solid fa-download"></i> Export CSV</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Role & Department</th>
+                                    <th>Account Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-emp-table">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="admin-all-attendance" class="content-section">
+                <div class="surface-panel overflow-hidden">
+                    <div class="p-6 pb-4">
+                        <h2>Daily Attendance Tracker</h2>
+                        <p class="text-sm text-muted mb-2">View real-time check-in status for all employees today.</p>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Employee ID</th>
+                                    <th>Status Today</th>
+                                    <th>Logged At</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-attendance-table">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="admin-payroll" class="content-section">
+                <div class="surface-panel overflow-hidden">
+                    <div class="p-6 pb-4">
+                        <h2>Payroll Management</h2>
+                        <p class="text-sm text-muted mb-2">Review and securely update employee compensation structures.</p>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Role</th>
+                                    <th>Current Base Salary</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-payroll-table">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="admin-leave" class="content-section">
+                <div class="surface-panel overflow-hidden">
+                    <div class="p-6 pb-4">
+                        <h2>Time-Off Approvals</h2>
+                        <p class="text-sm text-muted mb-2">Review and manage employee leave requests.</p>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Request Details</th>
+                                    <th>Dates Requested</th>
+                                    <th>Status</th>
+                                    <th>Review Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-leave-table">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // ==========================================
+        // 1. IN-MEMORY DATABASE STATE (Mock Backend)
+        // ==========================================
+        const state = {
+            currentUser: null,
+            editingUserId: null,
+            users: [
+                { id: 'E-0142', name: 'Sayan Sekh', email: 'employee@nexhr.com', password: 'password123', role: 'employee', roleTitle: 'Frontend Engineer', salary: '$85,000 / yr' },
+                { id: 'A-0001', name: 'Sarah Jenkins', email: 'admin@nexhr.com', password: 'password123', role: 'admin', roleTitle: 'HR Director', salary: '$140,000 / yr' },
+                { id: 'E-0189', name: 'Michael Chen', email: 'michael@nexhr.com', password: 'password123', role: 'employee', roleTitle: 'UX Designer', salary: '$95,000 / yr' },
+                { id: 'E-0205', name: 'Emma Watson', email: 'emma@nexhr.com', password: 'password123', role: 'employee', roleTitle: 'Marketing Lead', salary: '$88,000 / yr' }
+            ],
+            attendance: [
+                // Format: { userId, date: 'YYYY-MM-DD', status: 'present'|'absent' }
+            ],
+            leaveRequests: [
+                { id: 1, userId: 'E-0189', userName: 'Michael Chen', type: 'Sick Leave', startDate: '2023-11-10', endDate: '2023-11-12', remarks: 'Down with a severe flu.', status: 'pending' },
+                { id: 2, userId: 'E-0205', userName: 'Emma Watson', type: 'Paid Time Off (PTO)', startDate: '2023-12-20', endDate: '2023-12-25', remarks: 'Family vacation for the holidays.', status: 'approved' }
+            ]
+        };
+
+        const getTodayStr = () => new Date().toISOString().split('T')[0];
+
+        // Seed some mock attendance for today for realism
+        state.attendance.push({ userId: 'E-0189', date: getTodayStr(), status: 'present' });
+        state.attendance.push({ userId: 'E-0205', date: getTodayStr(), status: 'present' });
+
+        // Helper to generate initials Avatar URL
+        const getAvatarUrl = (name) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=EEF2FF&color=4F46E5&rounded=true&bold=true`;
+
+        // ==========================================
+        // 2. UI UTILITIES & TOASTS
+        // ==========================================
+        function showToast(message, type = 'default') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            let icon = '<i class="fa-solid fa-circle-info text-primary"></i>';
+            if(type === 'success') { icon = '<i class="fa-solid fa-circle-check" style="color: var(--success)"></i>'; }
+            if(type === 'error') { icon = '<i class="fa-solid fa-triangle-exclamation" style="color: var(--danger)"></i>'; }
+
+            toast.innerHTML = `${icon} <span style="font-weight: 500">${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) return "Good morning";
+            if (hour < 18) return "Good afternoon";
+            return "Good evening";
+        }
+
+        // ==========================================
+        // 3. AUTHENTICATION LOGIC
+        // ==========================================
+        function toggleAuthForms() {
+            document.getElementById('login-form').classList.toggle('hidden');
+            document.getElementById('register-form').classList.toggle('hidden');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+
+            const user = state.users.find(u => u.email === email && u.password === pass);
+            
+            if (user) {
+                state.currentUser = user;
+                showToast(`Welcome back, ${user.name.split(' ')[0]}`, 'success');
+                initDashboard();
+            } else {
+                showToast('Incorrect email or password.', 'error');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-password').value;
+            const role = document.getElementById('reg-role').value;
+
+            if(state.users.find(u => u.email === email)) {
+                showToast('Email is already registered.', 'error');
+                return;
+            }
+
+            const newUser = {
+                id: (role === 'admin' ? 'A-' : 'E-') + Math.floor(Math.random()*9000 + 1000).toString(),
+                name, email, password: pass, role, 
+                roleTitle: role === 'admin' ? 'HR Administrator' : 'Team Member', 
+                salary: 'Pending Setup'
+            };
+
+            state.users.push(newUser);
+            state.currentUser = newUser;
+            showToast('Workspace account created successfully!', 'success');
+            initDashboard();
+        }
+
+        function handleLogout() {
+            state.currentUser = null;
+            document.getElementById('auth-view').classList.remove('hidden');
+            document.getElementById('app-view').classList.add('hidden');
+            showToast('You have been securely signed out.');
+        }
+
+        // ==========================================
+        // 4. ROUTING & INITIALIZATION
+        // ==========================================
+        function initDashboard() {
+            document.getElementById('auth-view').classList.add('hidden');
+            document.getElementById('app-view').classList.remove('hidden');
+
+            // Setup Header
+            const firstName = state.currentUser.name.split(' ')[0];
+            document.getElementById('dynamic-greeting').innerHTML = `${getGreeting()}, <span class="text-primary">${firstName}</span> 👋`;
+            document.getElementById('user-display-role').textContent = state.currentUser.roleTitle;
+            
+            document.getElementById('header-name').textContent = state.currentUser.name;
+            document.getElementById('header-id').textContent = state.currentUser.id;
+            document.getElementById('header-avatar').innerHTML = `<img src="${getAvatarUrl(state.currentUser.name)}" alt="Profile">`;
+
+            renderSidebar();
+            
+            if(state.currentUser.role === 'admin') {
+                switchTab('admin-dashboard', document.getElementById('nav-admin-dash'));
+                renderAdminDashboard();
+            } else {
+                switchTab('emp-dashboard', document.getElementById('nav-emp-dash'));
+                renderEmpDashboard();
+            }
+        }
+
+        function renderSidebar() {
+            const nav = document.getElementById('sidebar-nav');
+            const role = state.currentUser.role;
+            let html = '';
+
+            if (role === 'employee') {
+                html += `<button id="nav-emp-dash" class="nav-btn active" onclick="switchTab('emp-dashboard', this)"><i class="fa-solid fa-house"></i> Home</button>`;
+                html += `<button class="nav-btn" onclick="switchTab('emp-profile', this); populateProfile();"><i class="fa-regular fa-id-badge"></i> My Profile</button>`;
+                html += `<button class="nav-btn" onclick="switchTab('emp-attendance', this); renderCalendar();"><i class="fa-regular fa-calendar-check"></i> Attendance</button>`;
+                html += `<button class="nav-btn" onclick="switchTab('emp-leave', this); renderMyLeaves();"><i class="fa-solid fa-plane"></i> Time Off</button>`;
+            } else {
+                html += `<button id="nav-admin-dash" class="nav-btn active" onclick="switchTab('admin-dashboard', this); renderAdminDashboard();"><i class="fa-solid fa-chart-pie"></i> Overview</button>`;
+                html += `<button class="nav-btn" onclick="switchTab('admin-all-attendance', this); renderAdminAttendance();"><i class="fa-solid fa-list-check"></i> Daily Roster</button>`;
+                html += `<button class="nav-btn" onclick="switchTab('admin-leave', this); renderAdminLeaves();"><i class="fa-solid fa-inbox"></i> Leave Approvals</button>`;
+                html += `<button class="nav-btn" onclick="switchTab('admin-payroll', this); renderAdminPayroll();"><i class="fa-solid fa-money-check-dollar"></i> Payroll</button>`;
+            }
+            nav.innerHTML = html;
+        }
+
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            if(btnElement) btnElement.classList.add('active');
+            else {
+                // Attempt to find corresponding nav button if called without element ref
+                const matchingBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+                if(matchingBtn) matchingBtn.classList.add('active');
+            }
+        }
+
+        // ==========================================
+        // 5. EMPLOYEE FUNCTIONS
+        // ==========================================
+        function populateProfile() {
+            document.getElementById('prof-id').value = state.currentUser.id;
+            document.getElementById('prof-name').value = state.currentUser.name;
+            document.getElementById('prof-email').value = state.currentUser.email;
+            document.getElementById('prof-role').value = state.currentUser.roleTitle;
+            document.getElementById('prof-salary').value = state.currentUser.salary;
+        }
+
+        function renderEmpDashboard() {
+            const todayRecord = state.attendance.find(a => a.userId === state.currentUser.id && a.date === getTodayStr());
+            const btn = document.getElementById('checkInBtn');
+            const statusText = document.getElementById('checkInStatus');
+            
+            if (todayRecord && todayRecord.status === 'present') {
+                btn.innerHTML = 'Check Out';
+                btn.className = 'btn btn-outline w-full';
+                statusText.innerHTML = `Status: <span class="badge badge-approved"><i class="fa-solid fa-check"></i> Checked In</span>`;
+            } else {
+                btn.innerHTML = 'Check In Now';
+                btn.className = 'btn btn-primary w-full';
+                statusText.innerHTML = `Status: <span class="badge badge-employee">Not Checked In</span>`;
+            }
+        }
+
+        function toggleCheckIn() {
+            const today = getTodayStr();
+            const index = state.attendance.findIndex(a => a.userId === state.currentUser.id && a.date === today);
+            
+            if (index === -1) {
+                state.attendance.push({ userId: state.currentUser.id, date: today, status: 'present' });
+                showToast('Successfully checked in for the day!', 'success');
+            } else {
+                state.attendance.splice(index, 1); 
+                showToast('Checked out.', 'default');
+            }
+            renderEmpDashboard();
+        }
+
+        function renderCalendar() {
+            const date = new Date();
+            const monthName = date.toLocaleString('default', { month: 'long' });
+            document.getElementById('calendar-month').textContent = `${monthName} ${date.getFullYear()}`;
+            
+            const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+            
+            const grid = document.getElementById('calendar-days');
+            let html = '';
+
+            for(let i=0; i<firstDay; i++) { html += `<div></div>`; }
+
+            for(let i=1; i<=daysInMonth; i++) {
+                const dayStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                
+                let dotClass = '';
+                let label = '';
+                
+                const attRecord = state.attendance.find(a => a.userId === state.currentUser.id && a.date === dayStr);
+                
+                if(attRecord && attRecord.status === 'present') {
+                    dotClass = 'present'; label = 'Present';
+                } else if (dayStr < getTodayStr() && i % 7 !== 0 && i % 7 !== 6) { 
+                    dotClass = 'absent'; label = 'Absent';
+                }
+
+                const leaveRecord = state.leaveRequests.find(l => l.userId === state.currentUser.id && l.status === 'approved' && l.startDate <= dayStr && l.endDate >= dayStr);
+                if (leaveRecord) { dotClass = 'leave'; label = 'Leave'; }
+
+                const isToday = dayStr === getTodayStr() ? 'today' : '';
+                
+                html += `
+                    <div class="day-cell ${isToday}">
+                        <span class="date-num">${i}</span>
+                        ${dotClass ? `<div class="status-pill ${dotClass}">${label}</div>` : ''}
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        function submitLeaveRequest(e) {
+            e.preventDefault();
+            const type = document.getElementById('leave-type').value;
+            const start = document.getElementById('leave-start').value;
+            const end = document.getElementById('leave-end').value;
+            const remarks = document.getElementById('leave-remarks').value;
+
+            state.leaveRequests.push({
+                id: Date.now(),
+                userId: state.currentUser.id,
+                userName: state.currentUser.name,
+                type, startDate: start, endDate: end, remarks, status: 'pending'
+            });
+
+            showToast('Your time-off request has been sent to HR.', 'success');
+            e.target.reset();
+            renderMyLeaves();
+        }
+
+        function renderMyLeaves() {
+            const tbody = document.getElementById('my-leave-table-body');
+            const myLeaves = state.leaveRequests.filter(l => l.userId === state.currentUser.id).reverse();
+            
+            if(myLeaves.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding: 2rem;">No time-off requests found.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            myLeaves.forEach(l => {
+                html += `
+                    <tr>
+                        <td>
+                            <strong style="color:var(--text-dark)">${l.type}</strong>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">"${l.remarks}"</div>
+                        </td>
+                        <td style="font-size: 0.9rem;">
+                            ${l.startDate} <i class="fa-solid fa-arrow-right text-muted" style="margin: 0 8px; font-size: 0.7rem;"></i> ${l.endDate}
+                        </td>
+                        <td><span class="badge badge-${l.status}">${l.status}</span></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // ==========================================
+        // 6. ADMIN FUNCTIONS
+        // ==========================================
+        function renderAdminDashboard() {
+            const emps = state.users.filter(u => u.role === 'employee');
+            document.getElementById('stat-total-emp').textContent = emps.length;
+            
+            const today = getTodayStr();
+            const presentToday = state.attendance.filter(a => a.date === today && a.status === 'present').length;
+            document.getElementById('stat-present-today').textContent = presentToday;
+
+            const pending = state.leaveRequests.filter(l => l.status === 'pending').length;
+            document.getElementById('stat-pending-leaves').textContent = pending;
+
+            const tbody = document.getElementById('admin-emp-table');
+            let html = '';
+            state.users.forEach(u => {
+                const badgeClass = u.role === 'admin' ? 'admin' : 'employee';
+                html += `
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <img src="${getAvatarUrl(u.name)}" style="width: 36px; height: 36px; border-radius: 50%;">
+                                <div class="user-cell-info">
+                                    <span class="user-cell-name">${u.name}</span>
+                                    <span class="user-cell-email">${u.email}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 500">${u.roleTitle}</div>
+                            <div class="text-sm text-muted">ID: ${u.id}</div>
+                        </td>
+                        <td><span class="badge badge-${badgeClass}">${u.role}</span></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+        
+        function renderAdminAttendance() {
+            const tbody = document.getElementById('admin-attendance-table');
+            const employees = state.users.filter(u => u.role === 'employee');
+            const today = getTodayStr();
+            
+            let html = '';
+            employees.forEach(emp => {
+                const attRecord = state.attendance.find(a => a.userId === emp.id && a.date === today);
+                const leaveRecord = state.leaveRequests.find(l => l.userId === emp.id && l.status === 'approved' && l.startDate <= today && l.endDate >= today);
+                
+                let statusBadge = `<span class="badge badge-employee">Absent</span>`;
+                let logTime = `<span class="text-muted">--</span>`;
+                
+                if(attRecord && attRecord.status === 'present') {
+                    statusBadge = `<span class="badge badge-approved">Present</span>`;
+                    logTime = `Today, 9:02 AM`; // Mock time for realism
+                } else if(leaveRecord) {
+                    statusBadge = `<span class="badge badge-pending">On Leave</span>`;
+                    logTime = `Approved PTO`;
+                }
+
+                html += `
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <img src="${getAvatarUrl(emp.name)}" style="width: 32px; height: 32px; border-radius: 50%;">
+                                <span class="user-cell-name">${emp.name}</span>
+                            </div>
+                        </td>
+                        <td class="text-muted">${emp.id}</td>
+                        <td>${statusBadge}</td>
+                        <td class="text-sm">${logTime}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function renderAdminPayroll() {
+            const tbody = document.getElementById('admin-payroll-table');
+            const employees = state.users.filter(u => u.role === 'employee');
+            
+            let html = '';
+            employees.forEach(emp => {
+                html += `
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <img src="${getAvatarUrl(emp.name)}" style="width: 32px; height: 32px; border-radius: 50%;">
+                                <div class="user-cell-info">
+                                    <span class="user-cell-name">${emp.name}</span>
+                                    <span class="user-cell-email">${emp.id}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${emp.roleTitle}</td>
+                        <td style="font-weight: 600; color: var(--text-dark)">${emp.salary}</td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="openSalaryModal('${emp.id}')">
+                                Modify
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        window.openSalaryModal = function(userId) {
+            const user = state.users.find(u => u.id === userId);
+            if(user) {
+                state.editingUserId = userId;
+                document.getElementById('modal-emp-name').textContent = user.name;
+                document.getElementById('modal-salary-input').value = user.salary.replace(' / yr', '').replace('$', '');
+                openModal('edit-salary-modal');
+            }
+        };
+
+        window.saveSalary = function() {
+            if(!state.editingUserId) return;
+            const inputVal = document.getElementById('modal-salary-input').value.trim();
+            const newSalary = inputVal.includes('$') ? inputVal : `$${inputVal} / yr`; // Formatting fallback
+            
+            const user = state.users.find(u => u.id === state.editingUserId);
+            
+            if(user) {
+                user.salary = newSalary;
+                showToast(`Payroll updated for ${user.name}`, 'success');
+                closeModal('edit-salary-modal');
+                renderAdminPayroll();
+            }
+        };
+
+        function renderAdminLeaves() {
+            const tbody = document.getElementById('admin-leave-table');
+            const requests = [...state.leaveRequests].reverse(); 
+            
+            if(requests.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding: 2rem;">Inbox zero! No pending requests.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            requests.forEach(l => {
+                let actions = '';
+                if(l.status === 'pending') {
+                    actions = `
+                        <div style="display:flex; gap: 8px;">
+                            <button class="btn btn-success btn-sm" onclick="processLeave(${l.id}, 'approved')"><i class="fa-solid fa-check"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="processLeave(${l.id}, 'rejected')"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    `;
+                } else {
+                    actions = `<span class="text-sm text-muted">Reviewed</span>`;
+                }
+
+                html += `
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <img src="${getAvatarUrl(l.userName)}" style="width: 32px; height: 32px; border-radius: 50%;">
+                                <span class="user-cell-name">${l.userName}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 500">${l.type}</div>
+                            <div class="text-sm text-muted" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${l.remarks}">${l.remarks}</div>
+                        </td>
+                        <td class="text-sm">
+                            ${l.startDate} <i class="fa-solid fa-arrow-right text-muted" style="font-size: 10px; margin: 0 4px;"></i> ${l.endDate}
+                        </td>
+                        <td><span class="badge badge-${l.status}">${l.status}</span></td>
+                        <td>${actions}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        window.processLeave = function(id, newStatus) {
+            const req = state.leaveRequests.find(l => l.id === id);
+            if(req) {
+                req.status = newStatus;
+                showToast(`Request marked as ${newStatus}`, newStatus === 'approved' ? 'success' : 'default');
+                renderAdminLeaves();
+                renderAdminDashboard(); 
+            }
+        };
+    </script>
+</body>
+</html>
